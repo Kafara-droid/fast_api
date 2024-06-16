@@ -8,8 +8,8 @@ import uvicorn
 app = FastAPI()
 
 # Load CSV files
-rating_df = pd.read_csv('https://storage.googleapis.com/modeltourtle/rating_baru.csv')
-place_df = pd.read_csv('https://storage.googleapis.com/modeltourtle/place_malang.csv')
+rating_df = pd.read_csv('rating_baru.csv')
+place_df = pd.read_csv('place_malang.csv')
 
 # Load the TensorFlow Lite model
 model = tf.lite.Interpreter(model_path="recommender_model.tflite")
@@ -77,6 +77,7 @@ async def get_recommendations(user_id: int):
             "rank": i,
             "place_name": row.place_name,
             "category": row.category,
+            "price": row.price,
             "rating": row.rating
         })
 
@@ -103,24 +104,6 @@ async def get_recommendations(user_id: int):
     return {
         "user_id": user_id,
         "top_places_visited": top_places,
-        "recommendations": recommendations
-    }
-
-@app.get("/recommendations")
-async def general_recommendations():
-    # Get top 7 highest-rated places as general recommendations
-    top_places = place_df.sort_values(by='rating', ascending=False).head(7)
-
-    recommendations = []
-    for row, i in zip(top_places.itertuples(), range(1, 8)):
-        recommendations.append({
-            "rank": i,
-            "place_name": row.place_name,
-            "category": row.category,
-            "rating": row.rating
-        })
-
-    return {
         "recommendations": recommendations
     }
 
