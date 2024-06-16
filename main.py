@@ -2,6 +2,8 @@ from fastapi import FastAPI
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+import os; os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import uvicorn
 
 app = FastAPI()
 
@@ -75,7 +77,6 @@ async def get_recommendations(user_id: int):
             "rank": i,
             "place_name": row.place_name,
             "category": row.category,
-            "price": row.price,
             "rating": row.rating
         })
 
@@ -105,6 +106,23 @@ async def get_recommendations(user_id: int):
         "recommendations": recommendations
     }
 
+@app.get("/recommendations")
+async def general_recommendations():
+    # Get top 7 highest-rated places as general recommendations
+    top_places = place_df.sort_values(by='rating', ascending=False).head(7)
+
+    recommendations = []
+    for row, i in zip(top_places.itertuples(), range(1, 8)):
+        recommendations.append({
+            "rank": i,
+            "place_name": row.place_name,
+            "category": row.category,
+            "rating": row.rating
+        })
+
+    return {
+        "recommendations": recommendations
+    }
+
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))
