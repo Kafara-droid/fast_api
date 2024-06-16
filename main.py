@@ -8,8 +8,8 @@ import uvicorn
 app = FastAPI()
 
 # Load CSV files
-rating_df = pd.read_csv('rating_baru.csv')
-place_df = pd.read_csv('place_malang.csv')
+rating_df = pd.read_csv('https://storage.googleapis.com/modeltourtle/rating_baru.csv')
+place_df = pd.read_csv('https://storage.googleapis.com/modeltourtle/place_malang.csv')
 
 # Load the TensorFlow Lite model
 model = tf.lite.Interpreter(model_path="recommender_model.tflite")
